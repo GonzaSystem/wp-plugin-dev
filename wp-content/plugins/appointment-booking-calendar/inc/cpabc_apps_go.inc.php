@@ -201,8 +201,52 @@ function cpabc_appointments_main_initialization()
     $_SESSION['rand_code'] = '';
     setCookie('rand_code', '', time()+36000,"/");
 
+    // If they attempt to register on same day, insert into overflow and send email as per requested on the mail
+
     // insert into database
     //---------------------------
+
+    // insert household people first
+    $total_household_people = intval($_POST['total_household']);
+
+    for ($i=1; $i < $total_household_people; $i++) { 
+        
+         if (date("Y",strtotime($pdateAndTime[0])) == "1970") // if this is spam, skip
+             return;
+
+    for ($n=0; $n<count($pdateAndTime); $n++){
+
+        if(sanitize_text_field($_POST["child_dependent_".$i.""]) == "Yes"){
+            $child_dependent_email = "";
+        }else{
+            $child_dependent_email = sanitize_text_field($_POST["child_dependent_email_".$i.""]);
+        }
+
+        $params["DATE"] = trim( substr($pdate[$n], 0, strpos($pdate[$n],' ') ) );
+        $params["TIME"] = trim( substr($pdate[$n], strpos($pdate[$n],' ') ) );
+        $rows_affected = $wpdb->insert( CPABC_APPOINTMENTS_TABLE_NAME, array( 'calendar' => $selectedCalendar,
+                                                                        'time' => current_time('mysql'),
+                                                                        'booked_time' => sanitize_text_field($pdate[$n]),
+                                                                        'booked_time_unformatted' => $pdateAndTime[$n],
+                                                                        'name' => "".sanitize_text_field(@$_POST["household_name_".$i.""]),
+                                                                        'email' => "".$child_dependent_email,
+                                                                        'phone' => "".sanitize_text_field(@$_POST["child_dependent_phone_".$i.""]),
+                                                                        'question' => $buffer_A,
+                                                                        'quantity' => (isset($_POST["abc_capacity"])?sanitize_text_field($_POST["abc_capacity"]):1),
+                                                                        'buffered_date' => serialize($params)
+                                                                         ) );
+            if (!$rows_affected)
+            {
+                echo 'Error inserting. Please contact the administrator.';
+                exit;
+            }
+
+            $inserted_id[] = $wpdb->insert_id;
+            $inserted_id = implode(';', $inserted_id);
+
+            cpabc_process_ready_to_go_appointment($inserted_id);
+        }
+    }
 
     if (date("Y",strtotime($pdateAndTime[0])) == "1970") // if this is spam, skip
         return;

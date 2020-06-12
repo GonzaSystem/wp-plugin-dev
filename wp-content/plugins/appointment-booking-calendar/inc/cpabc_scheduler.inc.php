@@ -103,7 +103,7 @@
 <input type="text" name="name" value="<?php /** if (isset($current_user->user_firstname)) echo $current_user->user_firstname." ".$current_user->user_lastname; */ ?>"><br />
 <?php _e('Your email','appointment-booking-calendar'); ?>:<br />
 <input type="email" name="email" value="<?php /** if (isset($current_user->user_email)) echo $current_user->user_email; */ ?>"><br />
-<?php _e('How many people (including children) will be attending from your household?', 'appointment-booking-calendar') ?><br />
+<?php _e('What is the total number of people, including yourself and any children, that will be attending the service from your household?', 'appointment-booking-calendar') ?><br />
 <input type="number" id="household_people" name="household_people"><br /> <br />
 
 <div id="extra_household">
@@ -141,7 +141,7 @@ $(document).ready(function(){
         var i;
 
         // Loop and individual append inputs
-        for(i = 0; i < totalPeople; i++){
+        for(i = 0; i < (totalPeople-1); i++){
           $("#extra_hh").append('<label for="household_name_'+(i+1)+'">Name</label><br /><input type="text" name="household_name_'+(i+1)+'" > <br/> <label for="child_dependent_'+(i+1)+'">Is this your child or dependent?</label> <br/> <select id="child_dependent" type="text" name="child_dependent_'+(i+1)+'"><option value="">Select..</option><option value="No">No</option><option value="Yes">Yes</option></select> <br/ ><br /><div id="child_dependent_data_'+(i+1)+'"></div>');
         }
     }); 
@@ -155,7 +155,7 @@ $(document).ready(function(){
      // If it's yes then we append the phone number of the parent's
      if($(this).val() == 'Yes'){
         $("#child_dependent_data_"+child[2]).children().remove();
-        $("#child_dependent_data_"+child[2]).append('<label for="child_dependent_phone_'+child[2]+'">Child/Dependent Phone</label> <br /><input type="text" name="child_dependent_phone_'+child[2]+'" value="'+parents_phone+'" readonly> <br /><br />');
+        $("#child_dependent_data_"+child[2]).append('<label for="child_dependent_phone_'+child[2]+'">Child/Dependent Phone</label> <br /><input type="text" name="child_dependent_phone_'+child[2]+'" value="'+parents_phone+'"> <br /><br />');
 
      // If it's not then we append the phone and email inputs to fill
      }else if($(this).val() == 'No'){
